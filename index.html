@@ -1,0 +1,961 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pop.utka - Поиск попутчиков и водителей в Узбекистане</title>
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #f8f9fa;
+            --accent-color: #ff6d00;
+            --text-color: #333;
+            --light-text: #fff;
+            --border-color: #ddd;
+        }
+        
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 20px;
+        }
+        
+        nav ul li a {
+            color: var(--light-text);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .auth-buttons button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        .driver-btn {
+            background-color: var(--accent-color);
+            color: var(--light-text);
+        }
+        
+        .passenger-btn {
+            background-color: var(--light-text);
+            color: var(--primary-color);
+        }
+        
+        .language-selector {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .language-selector select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--light-text);
+            cursor: pointer;
+        }
+        
+        .search-container {
+            background-color: var(--secondary-color);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .search-form {
+            max-width: 800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+        }
+        
+        .search-form input, .search-form select {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .search-form button {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            border: none;
+            border-radius: 4px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .main-content {
+            padding: 30px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .rides-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .ride-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .ride-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .ride-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .route {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        
+        .ride-details {
+            margin-bottom: 15px;
+        }
+        
+        .detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .detail i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .driver-info {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .driver-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .driver-name {
+            font-weight: 500;
+        }
+        
+        .driver-rating {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            color: var(--accent-color);
+        }
+        
+        .star {
+            color: #ffc107;
+            margin-right: 5px;
+        }
+        
+        .view-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 15px;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--light-text);
+            padding: 30px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .auth-form input {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .auth-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .auth-switch {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .auth-switch a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        footer {
+            background-color: var(--secondary-color);
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links a {
+            margin: 0 15px;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+        
+        .copyright {
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .rides-container {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            nav ul {
+                margin-top: 15px;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .auth-buttons {
+                margin-top: 15px;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+            }
+            
+            .auth-buttons button {
+                margin: 0;
+                flex: 1;
+                margin: 0 5px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgZmlsbD0iIzFhNzNlOCIvPjxwYXRoIGQ9Ik0xMjgsMzJhOTYsOTYgMCAxLDAgMCwxOTIgOTYsOTYgMCAxLDAgMCwtMTkydjBtLTQ4LDY0YTQ4LDQ4IDAgMSwxIDAsOTYgNDgsNDggMCAxLDEgMCwtOTZtOTYsMGE0OCw0OCAwIDEsMSAwLDk2IDQ4LDQ4IDAgMSwxIDAsLTk2IiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="Pop.utka Logo">
+            <span>Pop.utka</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" id="nav-home">Главная</a></li>
+                <li><a href="#" id="nav-rides">Поездки</a></li>
+                <li><a href="#" id="nav-drivers">Водители</a></li>
+                <li><a href="#" id="nav-about">О нас</a></li>
+                <li><a href="#" id="nav-contact">Контакты</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <button class="driver-btn" id="driver-auth-btn">Я водитель</button>
+            <button class="passenger-btn" id="passenger-auth-btn">Я пассажир</button>
+            <div class="language-selector">
+                <select id="language-select">
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                    <option value="uz">O'zbekcha</option>
+                </select>
+            </div>
+        </div>
+    </header>
+    
+    <div class="search-container">
+        <div class="search-form">
+            <input type="text" id="from-city" placeholder="Откуда (например, Ташкент)">
+            <input type="text" id="to-city" placeholder="Куда (например, Самарканд)">
+            <input type="date" id="ride-date">
+            <select id="passengers">
+                <option value="">Количество пассажиров</option>
+                <option value="1">1 пассажир</option>
+                <option value="2">2 пассажира</option>
+                <option value="3">3 пассажира</option>
+                <option value="4">4 пассажира</option>
+            </select>
+            <button id="search-btn">Найти поездки</button>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <h2 class="section-title">Доступные поездки</h2>
+        <div class="rides-container" id="rides-container">
+            <!-- Рейсы будут добавлены через JavaScript -->
+        </div>
+    </div>
+    
+    <footer>
+        <div class="footer-links">
+            <a href="#">Правила сервиса</a>
+            <a href="#">Безопасность</a>
+            <a href="#">Помощь</a>
+            <a href="#">Для бизнеса</a>
+            <a href="#">Партнерам</a>
+        </div>
+        <div class="copyright">© 2023 Pop.utka. Все права защищены.</div>
+    </footer>
+    
+    <!-- Модальное окно авторизации водителя -->
+    <div class="modal" id="driver-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Вход для водителей</h3>
+                <button class="close-btn" id="close-driver-modal">&times;</button>
+            </div>
+            <form class="auth-form" id="driver-form">
+                <input type="text" placeholder="Телефон или email" required>
+                <input type="password" placeholder="Пароль" required>
+                <button type="submit">Войти</button>
+                <div class="auth-switch">
+                    Нет аккаунта? <a href="#" id="driver-to-register">Зарегистрироваться</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Модальное окно регистрации водителя -->
+    <div class="modal" id="driver-register-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Регистрация водителя</h3>
+                <button class="close-btn" id="close-driver-register-modal">&times;</button>
+            </div>
+            <form class="auth-form" id="driver-register-form">
+                <input type="text" placeholder="Имя" required>
+                <input type="text" placeholder="Фамилия" required>
+                <input type="tel" placeholder="Телефон" required>
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Пароль" required>
+                <input type="text" placeholder="Марка и модель автомобиля" required>
+                <input type="text" placeholder="Госномер" required>
+                <button type="submit">Зарегистрироваться</button>
+                <div class="auth-switch">
+                    Уже есть аккаунт? <a href="#" id="driver-to-login">Войти</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Модальное окно авторизации пассажира -->
+    <div class="modal" id="passenger-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Вход для пассажиров</h3>
+                <button class="close-btn" id="close-passenger-modal">&times;</button>
+            </div>
+            <form class="auth-form" id="passenger-form">
+                <input type="text" placeholder="Телефон или email" required>
+                <input type="password" placeholder="Пароль" required>
+                <button type="submit">Войти</button>
+                <div class="auth-switch">
+                    Нет аккаунта? <a href="#" id="passenger-to-register">Зарегистрироваться</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Модальное окно регистрации пассажира -->
+    <div class="modal" id="passenger-register-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Регистрация пассажира</h3>
+                <button class="close-btn" id="close-passenger-register-modal">&times;</button>
+            </div>
+            <form class="auth-form" id="passenger-register-form">
+                <input type="text" placeholder="Имя" required>
+                <input type="text" placeholder="Фамилия" required>
+                <input type="tel" placeholder="Телефон" required>
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Пароль" required>
+                <button type="submit">Зарегистрироваться</button>
+                <div class="auth-switch">
+                    Уже есть аккаунт? <a href="#" id="passenger-to-login">Войти</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Фейковые данные о поездках
+        const ridesData = [
+            {
+                id: 1,
+                from: "Ташкент",
+                to: "Самарканд",
+                date: "2023-06-25",
+                time: "08:00",
+                price: "150,000 UZS",
+                seats: 3,
+                car: "Chevrolet Spark",
+                driver: {
+                    name: "Азиз",
+                    rating: 4.8,
+                    rides: 47,
+                    avatar: "А"
+                }
+            },
+            {
+                id: 2,
+                from: "Ташкент",
+                to: "Бухара",
+                date: "2023-06-26",
+                time: "07:30",
+                price: "200,000 UZS",
+                seats: 2,
+                car: "Gentra",
+                driver: {
+                    name: "Сардор",
+                    rating: 4.5,
+                    rides: 32,
+                    avatar: "С"
+                }
+            },
+            {
+                id: 3,
+                from: "Самарканд",
+                to: "Ташкент",
+                date: "2023-06-27",
+                time: "16:00",
+                price: "140,000 UZS",
+                seats: 4,
+                car: "Nexia 3",
+                driver: {
+                    name: "Дилшод",
+                    rating: 4.9,
+                    rides: 68,
+                    avatar: "Д"
+                }
+            },
+            {
+                id: 4,
+                from: "Андижан",
+                to: "Ташкент",
+                date: "2023-06-28",
+                time: "06:00",
+                price: "180,000 UZS",
+                seats: 3,
+                car: "Cobalt",
+                driver: {
+                    name: "Фарход",
+                    rating: 4.7,
+                    rides: 53,
+                    avatar: "Ф"
+                }
+            },
+            {
+                id: 5,
+                from: "Ташкент",
+                to: "Хива",
+                date: "2023-06-29",
+                time: "05:00",
+                price: "300,000 UZS",
+                seats: 2,
+                car: "Malibu",
+                driver: {
+                    name: "Равшан",
+                    rating: 4.6,
+                    rides: 41,
+                    avatar: "Р"
+                }
+            },
+            {
+                id: 6,
+                from: "Наманган",
+                to: "Ташкент",
+                date: "2023-06-30",
+                time: "09:00",
+                price: "170,000 UZS",
+                seats: 3,
+                car: "Damas",
+                driver: {
+                    name: "Бахром",
+                    rating: 4.4,
+                    rides: 27,
+                    avatar: "Б"
+                }
+            }
+        ];
+        
+        // Локализация
+        const translations = {
+            ru: {
+                home: "Главная",
+                rides: "Поездки",
+                drivers: "Водители",
+                about: "О нас",
+                contact: "Контакты",
+                driverBtn: "Я водитель",
+                passengerBtn: "Я пассажир",
+                fromPlaceholder: "Откуда (например, Ташкент)",
+                toPlaceholder: "Куда (например, Самарканд)",
+                passengers: "Количество пассажиров",
+                passenger1: "1 пассажир",
+                passenger2: "2 пассажира",
+                passenger3: "3 пассажира",
+                passenger4: "4 пассажира",
+                searchBtn: "Найти поездки",
+                availableRides: "Доступные поездки",
+                rules: "Правила сервиса",
+                safety: "Безопасность",
+                help: "Помощь",
+                business: "Для бизнеса",
+                partners: "Партнерам",
+                copyright: "© 2023 Pop.utka. Все права защищены.",
+                driverLoginTitle: "Вход для водителей",
+                passengerLoginTitle: "Вход для пассажиров",
+                phoneEmail: "Телефон или email",
+                password: "Пароль",
+                login: "Войти",
+                noAccount: "Нет аккаунта?",
+                register: "Зарегистрироваться",
+                driverRegisterTitle: "Регистрация водителя",
+                passengerRegisterTitle: "Регистрация пассажира",
+                firstName: "Имя",
+                lastName: "Фамилия",
+                phone: "Телефон",
+                email: "Email",
+                carModel: "Марка и модель автомобиля",
+                licensePlate: "Госномер",
+                submitRegister: "Зарегистрироваться",
+                haveAccount: "Уже есть аккаунт?",
+                signIn: "Войти"
+            },
+            en: {
+                home: "Home",
+                rides: "Rides",
+                drivers: "Drivers",
+                about: "About",
+                contact: "Contact",
+                driverBtn: "I'm a driver",
+                passengerBtn: "I'm a passenger",
+                fromPlaceholder: "From (e.g. Tashkent)",
+                toPlaceholder: "To (e.g. Samarkand)",
+                passengers: "Number of passengers",
+                passenger1: "1 passenger",
+                passenger2: "2 passengers",
+                passenger3: "3 passengers",
+                passenger4: "4 passengers",
+                searchBtn: "Find rides",
+                availableRides: "Available rides",
+                rules: "Terms of service",
+                safety: "Safety",
+                help: "Help",
+                business: "For business",
+                partners: "Partners",
+                copyright: "© 2023 Pop.utka. All rights reserved.",
+                driverLoginTitle: "Driver login",
+                passengerLoginTitle: "Passenger login",
+                phoneEmail: "Phone or email",
+                password: "Password",
+                login: "Login",
+                noAccount: "Don't have an account?",
+                register: "Register",
+                driverRegisterTitle: "Driver registration",
+                passengerRegisterTitle: "Passenger registration",
+                firstName: "First name",
+                lastName: "Last name",
+                phone: "Phone",
+                email: "Email",
+                carModel: "Car make and model",
+                licensePlate: "License plate",
+                submitRegister: "Register",
+                haveAccount: "Already have an account?",
+                signIn: "Sign in"
+            },
+            uz: {
+                home: "Bosh sahifa",
+                rides: "Sayohatlar",
+                drivers: "Haydovchilar",
+                about: "Biz haqimizda",
+                contact: "Aloqa",
+                driverBtn: "Men haydovchiman",
+                passengerBtn: "Men yo'lovchiman",
+                fromPlaceholder: "Qayerdan (masalan, Toshkent)",
+                toPlaceholder: "Qayerga (masalan, Samarqand)",
+                passengers: "Yo'lovchilar soni",
+                passenger1: "1 yo'lovchi",
+                passenger2: "2 yo'lovchi",
+                passenger3: "3 yo'lovchi",
+                passenger4: "4 yo'lovchi",
+                searchBtn: "Sayohatlarni topish",
+                availableRides: "Mavjud sayohatlar",
+                rules: "Xizmat shartlari",
+                safety: "Xavfsizlik",
+                help: "Yordam",
+                business: "Biznes uchun",
+                partners: "Hamkorlar",
+                copyright: "© 2023 Pop.utka. Barcha huquqlar himoyalangan.",
+                driverLoginTitle: "Haydovchilar uchun kirish",
+                passengerLoginTitle: "Yo'lovchilar uchun kirish",
+                phoneEmail: "Telefon yoki email",
+                password: "Parol",
+                login: "Kirish",
+                noAccount: "Hisobingiz yo'qmi?",
+                register: "Ro'yxatdan o'tish",
+                driverRegisterTitle: "Haydovchi ro'yxatdan o'tish",
+                passengerRegisterTitle: "Yo'lovchi ro'yxatdan o'tish",
+                firstName: "Ism",
+                lastName: "Familiya",
+                phone: "Telefon",
+                email: "Email",
+                carModel: "Avtomobil markasi va modeli",
+                licensePlate: "Davlat raqami",
+                submitRegister: "Ro'yxatdan o'tish",
+                haveAccount: "Hisobingiz bormi?",
+                signIn: "Kirish"
+            }
+        };
+        
+        // Текущий язык
+        let currentLanguage = 'ru';
+        
+        // Функция для изменения языка
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            const t = translations[lang];
+            
+            // Обновляем текст на странице
+            document.getElementById('nav-home').textContent = t.home;
+            document.getElementById('nav-rides').textContent = t.rides;
+            document.getElementById('nav-drivers').textContent = t.drivers;
+            document.getElementById('nav-about').textContent = t.about;
+            document.getElementById('nav-contact').textContent = t.contact;
+            document.getElementById('driver-auth-btn').textContent = t.driverBtn;
+            document.getElementById('passenger-auth-btn').textContent = t.passengerBtn;
+            document.getElementById('from-city').placeholder = t.fromPlaceholder;
+            document.getElementById('to-city').placeholder = t.toPlaceholder;
+            document.getElementById('passengers').options[0].text = t.passengers;
+            document.getElementById('passengers').options[1].text = t.passenger1;
+            document.getElementById('passengers').options[2].text = t.passenger2;
+            document.getElementById('passengers').options[3].text = t.passenger3;
+            document.getElementById('passengers').options[4].text = t.passenger4;
+            document.getElementById('search-btn').value = t.searchBtn;
+            document.querySelector('.section-title').textContent = t.availableRides;
+            
+            // Футер
+            const footerLinks = document.querySelectorAll('.footer-links a');
+            footerLinks[0].textContent = t.rules;
+            footerLinks[1].textContent = t.safety;
+            footerLinks[2].textContent = t.help;
+            footerLinks[3].textContent = t.business;
+            footerLinks[4].textContent = t.partners;
+            document.querySelector('.copyright').textContent = t.copyright;
+            
+            // Модальные окна
+            document.querySelector('#driver-modal .modal-title').textContent = t.driverLoginTitle;
+            document.querySelector('#driver-modal input[type="text"]').placeholder = t.phoneEmail;
+            document.querySelector('#driver-modal input[type="password"]').placeholder = t.password;
+            document.querySelector('#driver-modal button[type="submit"]').textContent = t.login;
+            document.querySelector('#driver-modal .auth-switch').innerHTML = `${t.noAccount} <a href="#" id="driver-to-register">${t.register}</a>`;
+            
+            document.querySelector('#passenger-modal .modal-title').textContent = t.passengerLoginTitle;
+            document.querySelector('#passenger-modal input[type="text"]').placeholder = t.phoneEmail;
+            document.querySelector('#passenger-modal input[type="password"]').placeholder = t.password;
+            document.querySelector('#passenger-modal button[type="submit"]').textContent = t.login;
+            document.querySelector('#passenger-modal .auth-switch').innerHTML = `${t.noAccount} <a href="#" id="passenger-to-register">${t.register}</a>`;
+            
+            document.querySelector('#driver-register-modal .modal-title').textContent = t.driverRegisterTitle;
+            document.querySelector('#driver-register-form input:nth-of-type(1)').placeholder = t.firstName;
+            document.querySelector('#driver-register-form input:nth-of-type(2)').placeholder = t.lastName;
+            document.querySelector('#driver-register-form input:nth-of-type(3)').placeholder = t.phone;
+            document.querySelector('#driver-register-form input:nth-of-type(4)').placeholder = t.email;
+            document.querySelector('#driver-register-form input:nth-of-type(5)').placeholder = t.password;
+            document.querySelector('#driver-register-form input:nth-of-type(6)').placeholder = t.carModel;
+            document.querySelector('#driver-register-form input:nth-of-type(7)').placeholder = t.licensePlate;
+            document.querySelector('#driver-register-form button').textContent = t.submitRegister;
+            document.querySelector('#driver-register-modal .auth-switch').innerHTML = `${t.haveAccount} <a href="#" id="driver-to-login">${t.signIn}</a>`;
+            
+            document.querySelector('#passenger-register-modal .modal-title').textContent = t.passengerRegisterTitle;
+            document.querySelector('#passenger-register-form input:nth-of-type(1)').placeholder = t.firstName;
+            document.querySelector('#passenger-register-form input:nth-of-type(2)').placeholder = t.lastName;
+            document.querySelector('#passenger-register-form input:nth-of-type(3)').placeholder = t.phone;
+            document.querySelector('#passenger-register-form input:nth-of-type(4)').placeholder = t.email;
+            document.querySelector('#passenger-register-form input:nth-of-type(5)').placeholder = t.password;
+            document.querySelector('#passenger-register-form button').textContent = t.submitRegister;
+            document.querySelector('#passenger-register-modal .auth-switch').innerHTML = `${t.haveAccount} <a href="#" id="passenger-to-login">${t.signIn}</a>`;
+        }
+        
+        // Инициализация страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Заполняем список поездок
+            const ridesContainer = document.getElementById('rides-container');
+            
+            ridesData.forEach(ride => {
+                const rideCard = document.createElement('div');
+                rideCard.className = 'ride-card';
+                
+                // Генерация звезд рейтинга
+                let stars = '';
+                const fullStars = Math.floor(ride.driver.rating);
+                const hasHalfStar = ride.driver.rating % 1 >= 0.5;
+                
+                for (let i = 0; i < fullStars; i++) {
+                    stars += '<i class="fas fa-star star"></i>';
+                }
+                
+                if (hasHalfStar) {
+                    stars += '<i class="fas fa-star-half-alt star"></i>';
+                }
+                
+                const emptyStars = 5 - Math.ceil(ride.driver.rating);
+                for (let i = 0; i < emptyStars; i++) {
+                    stars += '<i class="far fa-star star"></i>';
+                }
+                
+                rideCard.innerHTML = `
+                    <div class="ride-header">
+                        <div class="route">${ride.from} → ${ride.to}</div>
+                        <div class="price">${ride.price}</div>
+                    </div>
+                    <div class="ride-details">
+                        <div class="detail">
+                            <i class="far fa-calendar-alt"></i>
+                            <span>${ride.date} в ${ride.time}</span>
+                        </div>
+                        <div class="detail">
+                            <i class="fas fa-user-friends"></i>
+                            <span>${ride.seats} ${currentLanguage === 'ru' ? 'свободных места' : currentLanguage === 'en' ? 'available seats' : 'bo\'sh joylar'}</span>
+                        </div>
+                        <div class="detail">
+                            <i class="fas fa-car"></i>
+                            <span>${ride.car}</span>
+                        </div>
+                    </div>
+                    <div class="driver-info">
+                        <div class="driver-avatar">${ride.driver.avatar}</div>
+                        <div class="driver-name">${ride.driver.name}</div>
+                        <div class="driver-rating">
+                            ${stars}
+                            <span>${ride.driver.rating}</span>
+                        </div>
+                    </div>
+                    <a href="#" class="view-btn">${currentLanguage === 'ru' ? 'Подробнее' : currentLanguage === 'en' ? 'View details' : 'Batafsil'}</a>
+                `;
+                
+                ridesContainer.appendChild(rideCard);
+            });
+            
+            // Обработчики для модальных окон
+            document.getElementById('driver-auth-btn').addEventListener('click', function() {
+                document.getElementById('driver-modal').style.display = 'flex';
+            });
+            
+            document.getElementById('passenger-auth-btn').addEventListener('click', function() {
+                document.getElementById('passenger-modal').style.display = 'flex';
+            });
+            
+            document.getElementById('close-driver-modal').addEventListener('click', function() {
+                document.getElementById('driver-modal').style.display = 'none';
+            });
+            
+            document.getElementById('close-passenger-modal').addEventListener('click', function() {
+                document.getElementById('passenger-modal').style.display = 'none';
+            });
+            
+            document.getElementById('close-driver-register-modal').addEventListener('click', function() {
+                document.getElementById('driver-register-modal').style.display = 'none';
+            });
+            
+            document.getElementById('close-passenger-register-modal').addEventListener('click', function() {
+                document.getElementById('passenger-register-modal').style.display = 'none';
+            });
+            
+            // Переключение между окнами входа и регистрации
+            document.getElementById('driver-to-register').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('driver-modal').style.display = 'none';
+                document.getElementById('driver-register-modal').style.display = 'flex';
+            });
+            
+            document.getElementById('driver-to-login').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('driver-register-modal').style.display = 'none';
+                document.getElementById('driver-modal').style.display = 'flex';
+            });
+            
+            document.getElementById('passenger-to-register').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('passenger-modal').style.display = 'none';
+                document.getElementById('passenger-register-modal').style.display = 'flex';
+            });
+            
+            document.getElementById('passenger-to-login').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('passenger-register-modal').style.display = 'none';
+                document.getElementById('passenger-modal').style.display = 'flex';
+            });
+            
+            // Закрытие модальных окон при клике вне их
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+            
+            // Обработчик изменения языка
+            document.getElementById('language-select').addEventListener('change', function() {
+                changeLanguage(this.value);
+            });
+            
+            // Обработчик формы поиска
+            document.getElementById('search-btn').addEventListener('click', function() {
+                const from = document.getElementById('from-city').value;
+                const to = document.getElementById('to-city').value;
+                const date = document.getElementById('ride-date').value;
+                const passengers = document.getElementById('passengers').value;
+                
+                // Здесь должна быть логика фильтрации поездок
+                // В демо просто показываем alert
+                alert(currentLanguage === 'ru' ? 
+                      `Поиск поездок из ${from} в ${to} на ${date} для ${passengers} пассажиров` :
+                      currentLanguage === 'en' ?
+                      `Searching rides from ${from} to ${to} on ${date} for ${passengers} passengers` :
+                      `${from} dan ${to} ga ${date} kun ${passengers} yo'lovchi uchun sayohatlar qidirilmoqda`);
+            });
+        });
+    </script>
+</body>
+</html>
