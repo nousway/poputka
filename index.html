@@ -1,961 +1,715 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pop.utka - Поиск попутчиков и водителей в Узбекистане</title>
-    <style>
-        :root {
-            --primary-color: #1a73e8;
-            --secondary-color: #f8f9fa;
-            --accent-color: #ff6d00;
-            --text-color: #333;
-            --light-text: #fff;
-            --border-color: #ddd;
-        }
-        
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            color: var(--text-color);
-            transition: all 0.3s;
-        }
-        
-        header {
-            background-color: var(--primary-color);
-            color: var(--light-text);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        .logo img {
-            height: 40px;
-            margin-right: 10px;
-        }
-        
-        nav ul {
-            display: flex;
-            list-style: none;
-        }
-        
-        nav ul li {
-            margin-left: 20px;
-        }
-        
-        nav ul li a {
-            color: var(--light-text);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .auth-buttons button {
-            padding: 8px 16px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            margin-left: 10px;
-        }
-        
-        .driver-btn {
-            background-color: var(--accent-color);
-            color: var(--light-text);
-        }
-        
-        .passenger-btn {
-            background-color: var(--light-text);
-            color: var(--primary-color);
-        }
-        
-        .language-selector {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .language-selector select {
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            background-color: var(--light-text);
-            cursor: pointer;
-        }
-        
-        .search-container {
-            background-color: var(--secondary-color);
-            padding: 30px 20px;
-            text-align: center;
-        }
-        
-        .search-form {
-            max-width: 800px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 10px;
-        }
-        
-        .search-form input, .search-form select {
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        
-        .search-form button {
-            background-color: var(--primary-color);
-            color: var(--light-text);
-            border: none;
-            border-radius: 4px;
-            padding: 12px 20px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-        }
-        
-        .main-content {
-            padding: 30px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .section-title {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: var(--primary-color);
-        }
-        
-        .rides-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-        }
-        
-        .ride-card {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .ride-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .ride-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        
-        .route {
-            font-size: 18px;
-            font-weight: 500;
-        }
-        
-        .price {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--accent-color);
-        }
-        
-        .ride-details {
-            margin-bottom: 15px;
-        }
-        
-        .detail {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .detail i {
-            margin-right: 10px;
-            color: var(--primary-color);
-        }
-        
-        .driver-info {
-            display: flex;
-            align-items: center;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border-color);
-        }
-        
-        .driver-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            background-color: var(--secondary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-        
-        .driver-name {
-            font-weight: 500;
-        }
-        
-        .driver-rating {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            color: var(--accent-color);
-        }
-        
-        .star {
-            color: #ffc107;
-            margin-right: 5px;
-        }
-        
-        .view-btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: var(--primary-color);
-            color: var(--light-text);
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            margin-top: 15px;
-            text-align: center;
-            text-decoration: none;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background-color: var(--light-text);
-            padding: 30px;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .modal-title {
-            font-size: 22px;
-            font-weight: 500;
-            color: var(--primary-color);
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--text-color);
-        }
-        
-        .auth-form input {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        
-        .auth-form button {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--primary-color);
-            color: var(--light-text);
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        .auth-switch {
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        .auth-switch a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        
-        footer {
-            background-color: var(--secondary-color);
-            padding: 30px 20px;
-            text-align: center;
-            margin-top: 50px;
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        
-        .footer-links a {
-            margin: 0 15px;
-            color: var(--text-color);
-            text-decoration: none;
-        }
-        
-        .copyright {
-            color: #666;
-        }
-        
-        @media (max-width: 768px) {
-            .search-form {
-                grid-template-columns: 1fr;
-            }
-            
-            .rides-container {
-                grid-template-columns: 1fr;
-            }
-            
-            header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            nav ul {
-                margin-top: 15px;
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .auth-buttons {
-                margin-top: 15px;
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-            }
-            
-            .auth-buttons button {
-                margin: 0;
-                flex: 1;
-                margin: 0 5px;
-            }
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Pop.utka - Междугородние поездки на такси</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <div class="logo">
-            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgZmlsbD0iIzFhNzNlOCIvPjxwYXRoIGQ9Ik0xMjgsMzJhOTYsOTYgMCAxLDAgMCwxOTIgOTYsOTYgMCAxLDAgMCwtMTkydjBtLTQ4LDY0YTQ4LDQ4IDAgMSwxIDAsOTYgNDgsNDggMCAxLDEgMCwtOTZtOTYsMGE0OCw0OCAwIDEsMSAwLDk2IDQ4LDQ4IDAgMSwxIDAsLTk2IiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="Pop.utka Logo">
-            <span>Pop.utka</span>
-        </div>
+        <div class="logo">Pop.<span>utka</span></div>
         <nav>
             <ul>
-                <li><a href="#" id="nav-home">Главная</a></li>
-                <li><a href="#" id="nav-rides">Поездки</a></li>
-                <li><a href="#" id="nav-drivers">Водители</a></li>
-                <li><a href="#" id="nav-about">О нас</a></li>
-                <li><a href="#" id="nav-contact">Контакты</a></li>
+                <li><a href="#" onclick="showPage('home')">Главная</a></li>
+                <li><a href="#" onclick="showPage('find-trip')">Найти поездку</a></li>
+                <li><a href="#" onclick="showPage('offer-trip')">Предложить поездку</a></li>
+                <li><a href="#" onclick="showPage('about')">О сервисе</a></li>
             </ul>
         </nav>
         <div class="auth-buttons">
-            <button class="driver-btn" id="driver-auth-btn">Я водитель</button>
-            <button class="passenger-btn" id="passenger-auth-btn">Я пассажир</button>
-            <div class="language-selector">
-                <select id="language-select">
-                    <option value="ru">Русский</option>
-                    <option value="en">English</option>
-                    <option value="uz">O'zbekcha</option>
-                </select>
-            </div>
+            <button class="login-btn" onclick="showPage('login')">Войти</button>
+            <button class="register-btn" onclick="showPage('register')">Регистрация</button>
         </div>
     </header>
-    
-    <div class="search-container">
-        <div class="search-form">
-            <input type="text" id="from-city" placeholder="Откуда (например, Ташкент)">
-            <input type="text" id="to-city" placeholder="Куда (например, Самарканд)">
-            <input type="date" id="ride-date">
-            <select id="passengers">
-                <option value="">Количество пассажиров</option>
-                <option value="1">1 пассажир</option>
-                <option value="2">2 пассажира</option>
-                <option value="3">3 пассажира</option>
-                <option value="4">4 пассажира</option>
-            </select>
-            <button id="search-btn">Найти поездки</button>
-        </div>
-    </div>
-    
-    <div class="main-content">
-        <h2 class="section-title">Доступные поездки</h2>
-        <div class="rides-container" id="rides-container">
-            <!-- Рейсы будут добавлены через JavaScript -->
-        </div>
-    </div>
-    
-    <footer>
-        <div class="footer-links">
-            <a href="#">Правила сервиса</a>
-            <a href="#">Безопасность</a>
-            <a href="#">Помощь</a>
-            <a href="#">Для бизнеса</a>
-            <a href="#">Партнерам</a>
-        </div>
-        <div class="copyright">© 2023 Pop.utka. Все права защищены.</div>
-    </footer>
-    
-    <!-- Модальное окно авторизации водителя -->
-    <div class="modal" id="driver-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Вход для водителей</h3>
-                <button class="close-btn" id="close-driver-modal">&times;</button>
-            </div>
-            <form class="auth-form" id="driver-form">
-                <input type="text" placeholder="Телефон или email" required>
-                <input type="password" placeholder="Пароль" required>
-                <button type="submit">Войти</button>
-                <div class="auth-switch">
-                    Нет аккаунта? <a href="#" id="driver-to-register">Зарегистрироваться</a>
+
+    <div class="container">
+        <!-- Главная страница -->
+        <div id="home" class="page active">
+            <h1>Добро пожаловать в Pop.utka!</h1>
+            <p>Сервис для поиска междугородних поездок на такси с попутчиками.</p>
+            
+            <div class="main-options">
+                <div class="main-option passenger">
+                    <h3>Я пассажир</h3>
+                    <p>Найдите водителя для своей поездки между городами по выгодной цене.</p>
+                    <button onclick="showPage('find-trip')">Найти поездку</button>
                 </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Модальное окно регистрации водителя -->
-    <div class="modal" id="driver-register-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Регистрация водителя</h3>
-                <button class="close-btn" id="close-driver-register-modal">&times;</button>
-            </div>
-            <form class="auth-form" id="driver-register-form">
-                <input type="text" placeholder="Имя" required>
-                <input type="text" placeholder="Фамилия" required>
-                <input type="tel" placeholder="Телефон" required>
-                <input type="email" placeholder="Email" required>
-                <input type="password" placeholder="Пароль" required>
-                <input type="text" placeholder="Марка и модель автомобиля" required>
-                <input type="text" placeholder="Госномер" required>
-                <button type="submit">Зарегистрироваться</button>
-                <div class="auth-switch">
-                    Уже есть аккаунт? <a href="#" id="driver-to-login">Войти</a>
+                <div class="main-option driver">
+                    <h3>Я водитель</h3>
+                    <p>Предложите поездку и зарабатывайте на попутчиках.</p>
+                    <button onclick="showPage('offer-trip')">Предложить поездку</button>
                 </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Модальное окно авторизации пассажира -->
-    <div class="modal" id="passenger-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Вход для пассажиров</h3>
-                <button class="close-btn" id="close-passenger-modal">&times;</button>
             </div>
-            <form class="auth-form" id="passenger-form">
-                <input type="text" placeholder="Телефон или email" required>
-                <input type="password" placeholder="Пароль" required>
-                <button type="submit">Войти</button>
-                <div class="auth-switch">
-                    Нет аккаунта? <a href="#" id="passenger-to-register">Зарегистрироваться</a>
+            
+            <h2>Популярные направления</h2>
+            <div class="main-directions">
+                <div class="main-direction">
+                    <h4>Москва - Санкт-Петербург</h4>
+                    <p>от 1 500 ₽</p>
                 </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Модальное окно регистрации пассажира -->
-    <div class="modal" id="passenger-register-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Регистрация пассажира</h3>
-                <button class="close-btn" id="close-passenger-register-modal">&times;</button>
+                <div class="main-direction">
+                    <h4>Москва - Нижний Новгород</h4>
+                    <p>от 1 200 ₽</p>
+                </div>
+                <div class="main-direction">
+                    <h4>Санкт-Петербург - Великий Новгород</h4>
+                    <p>от 800 ₽</p>
+                </div>
             </div>
-            <form class="auth-form" id="passenger-register-form">
-                <input type="text" placeholder="Имя" required>
-                <input type="text" placeholder="Фамилия" required>
-                <input type="tel" placeholder="Телефон" required>
-                <input type="email" placeholder="Email" required>
-                <input type="password" placeholder="Пароль" required>
-                <button type="submit">Зарегистрироваться</button>
-                <div class="auth-switch">
-                    Уже есть аккаунт? <a href="#" id="passenger-to-login">Войти</a>
+            
+            <h2>Как это работает?</h2>
+            <div class="how-it-works">
+                <div class="how-step">
+                    <div class="how-step-number">1</div>
+                    <p>Выберите направление и дату поездки</p>
                 </div>
-            </form>
+                <div class="how-step">
+                    <div class="how-step-number">2</div>
+                    <p>Найдите подходящего водителя или предложите свою поездку</p>
+                </div>
+                <div class="how-step">
+                    <div class="how-step-number">3</div>
+                    <p>Договоритесь об условиях и наслаждайтесь поездкой!</p>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <script>
-        // Фейковые данные о поездках
-        const ridesData = [
-            {
-                id: 1,
-                from: "Ташкент",
-                to: "Самарканд",
-                date: "2023-06-25",
-                time: "08:00",
-                price: "150,000 UZS",
-                seats: 3,
-                car: "Chevrolet Spark",
-                driver: {
-                    name: "Азиз",
-                    rating: 4.8,
-                    rides: 47,
-                    avatar: "А"
-                }
-            },
-            {
-                id: 2,
-                from: "Ташкент",
-                to: "Бухара",
-                date: "2023-06-26",
-                time: "07:30",
-                price: "200,000 UZS",
-                seats: 2,
-                car: "Gentra",
-                driver: {
-                    name: "Сардор",
-                    rating: 4.5,
-                    rides: 32,
-                    avatar: "С"
-                }
-            },
-            {
-                id: 3,
-                from: "Самарканд",
-                to: "Ташкент",
-                date: "2023-06-27",
-                time: "16:00",
-                price: "140,000 UZS",
-                seats: 4,
-                car: "Nexia 3",
-                driver: {
-                    name: "Дилшод",
-                    rating: 4.9,
-                    rides: 68,
-                    avatar: "Д"
-                }
-            },
-            {
-                id: 4,
-                from: "Андижан",
-                to: "Ташкент",
-                date: "2023-06-28",
-                time: "06:00",
-                price: "180,000 UZS",
-                seats: 3,
-                car: "Cobalt",
-                driver: {
-                    name: "Фарход",
-                    rating: 4.7,
-                    rides: 53,
-                    avatar: "Ф"
-                }
-            },
-            {
-                id: 5,
-                from: "Ташкент",
-                to: "Хива",
-                date: "2023-06-29",
-                time: "05:00",
-                price: "300,000 UZS",
-                seats: 2,
-                car: "Malibu",
-                driver: {
-                    name: "Равшан",
-                    rating: 4.6,
-                    rides: 41,
-                    avatar: "Р"
-                }
-            },
-            {
-                id: 6,
-                from: "Наманган",
-                to: "Ташкент",
-                date: "2023-06-30",
-                time: "09:00",
-                price: "170,000 UZS",
-                seats: 3,
-                car: "Damas",
-                driver: {
-                    name: "Бахром",
-                    rating: 4.4,
-                    rides: 27,
-                    avatar: "Б"
-                }
-            }
-        ];
-        
-        // Локализация
-        const translations = {
-            ru: {
-                home: "Главная",
-                rides: "Поездки",
-                drivers: "Водители",
-                about: "О нас",
-                contact: "Контакты",
-                driverBtn: "Я водитель",
-                passengerBtn: "Я пассажир",
-                fromPlaceholder: "Откуда (например, Ташкент)",
-                toPlaceholder: "Куда (например, Самарканд)",
-                passengers: "Количество пассажиров",
-                passenger1: "1 пассажир",
-                passenger2: "2 пассажира",
-                passenger3: "3 пассажира",
-                passenger4: "4 пассажира",
-                searchBtn: "Найти поездки",
-                availableRides: "Доступные поездки",
-                rules: "Правила сервиса",
-                safety: "Безопасность",
-                help: "Помощь",
-                business: "Для бизнеса",
-                partners: "Партнерам",
-                copyright: "© 2023 Pop.utka. Все права защищены.",
-                driverLoginTitle: "Вход для водителей",
-                passengerLoginTitle: "Вход для пассажиров",
-                phoneEmail: "Телефон или email",
-                password: "Пароль",
-                login: "Войти",
-                noAccount: "Нет аккаунта?",
-                register: "Зарегистрироваться",
-                driverRegisterTitle: "Регистрация водителя",
-                passengerRegisterTitle: "Регистрация пассажира",
-                firstName: "Имя",
-                lastName: "Фамилия",
-                phone: "Телефон",
-                email: "Email",
-                carModel: "Марка и модель автомобиля",
-                licensePlate: "Госномер",
-                submitRegister: "Зарегистрироваться",
-                haveAccount: "Уже есть аккаунт?",
-                signIn: "Войти"
-            },
-            en: {
-                home: "Home",
-                rides: "Rides",
-                drivers: "Drivers",
-                about: "About",
-                contact: "Contact",
-                driverBtn: "I'm a driver",
-                passengerBtn: "I'm a passenger",
-                fromPlaceholder: "From (e.g. Tashkent)",
-                toPlaceholder: "To (e.g. Samarkand)",
-                passengers: "Number of passengers",
-                passenger1: "1 passenger",
-                passenger2: "2 passengers",
-                passenger3: "3 passengers",
-                passenger4: "4 passengers",
-                searchBtn: "Find rides",
-                availableRides: "Available rides",
-                rules: "Terms of service",
-                safety: "Safety",
-                help: "Help",
-                business: "For business",
-                partners: "Partners",
-                copyright: "© 2023 Pop.utka. All rights reserved.",
-                driverLoginTitle: "Driver login",
-                passengerLoginTitle: "Passenger login",
-                phoneEmail: "Phone or email",
-                password: "Password",
-                login: "Login",
-                noAccount: "Don't have an account?",
-                register: "Register",
-                driverRegisterTitle: "Driver registration",
-                passengerRegisterTitle: "Passenger registration",
-                firstName: "First name",
-                lastName: "Last name",
-                phone: "Phone",
-                email: "Email",
-                carModel: "Car make and model",
-                licensePlate: "License plate",
-                submitRegister: "Register",
-                haveAccount: "Already have an account?",
-                signIn: "Sign in"
-            },
-            uz: {
-                home: "Bosh sahifa",
-                rides: "Sayohatlar",
-                drivers: "Haydovchilar",
-                about: "Biz haqimizda",
-                contact: "Aloqa",
-                driverBtn: "Men haydovchiman",
-                passengerBtn: "Men yo'lovchiman",
-                fromPlaceholder: "Qayerdan (masalan, Toshkent)",
-                toPlaceholder: "Qayerga (masalan, Samarqand)",
-                passengers: "Yo'lovchilar soni",
-                passenger1: "1 yo'lovchi",
-                passenger2: "2 yo'lovchi",
-                passenger3: "3 yo'lovchi",
-                passenger4: "4 yo'lovchi",
-                searchBtn: "Sayohatlarni topish",
-                availableRides: "Mavjud sayohatlar",
-                rules: "Xizmat shartlari",
-                safety: "Xavfsizlik",
-                help: "Yordam",
-                business: "Biznes uchun",
-                partners: "Hamkorlar",
-                copyright: "© 2023 Pop.utka. Barcha huquqlar himoyalangan.",
-                driverLoginTitle: "Haydovchilar uchun kirish",
-                passengerLoginTitle: "Yo'lovchilar uchun kirish",
-                phoneEmail: "Telefon yoki email",
-                password: "Parol",
-                login: "Kirish",
-                noAccount: "Hisobingiz yo'qmi?",
-                register: "Ro'yxatdan o'tish",
-                driverRegisterTitle: "Haydovchi ro'yxatdan o'tish",
-                passengerRegisterTitle: "Yo'lovchi ro'yxatdan o'tish",
-                firstName: "Ism",
-                lastName: "Familiya",
-                phone: "Telefon",
-                email: "Email",
-                carModel: "Avtomobil markasi va modeli",
-                licensePlate: "Davlat raqami",
-                submitRegister: "Ro'yxatdan o'tish",
-                haveAccount: "Hisobingiz bormi?",
-                signIn: "Kirish"
-            }
-        };
-        
-        // Текущий язык
-        let currentLanguage = 'ru';
-        
-        // Функция для изменения языка
-        function changeLanguage(lang) {
-            currentLanguage = lang;
-            const t = translations[lang];
-            
-            // Обновляем текст на странице
-            document.getElementById('nav-home').textContent = t.home;
-            document.getElementById('nav-rides').textContent = t.rides;
-            document.getElementById('nav-drivers').textContent = t.drivers;
-            document.getElementById('nav-about').textContent = t.about;
-            document.getElementById('nav-contact').textContent = t.contact;
-            document.getElementById('driver-auth-btn').textContent = t.driverBtn;
-            document.getElementById('passenger-auth-btn').textContent = t.passengerBtn;
-            document.getElementById('from-city').placeholder = t.fromPlaceholder;
-            document.getElementById('to-city').placeholder = t.toPlaceholder;
-            document.getElementById('passengers').options[0].text = t.passengers;
-            document.getElementById('passengers').options[1].text = t.passenger1;
-            document.getElementById('passengers').options[2].text = t.passenger2;
-            document.getElementById('passengers').options[3].text = t.passenger3;
-            document.getElementById('passengers').options[4].text = t.passenger4;
-            document.getElementById('search-btn').value = t.searchBtn;
-            document.querySelector('.section-title').textContent = t.availableRides;
-            
-            // Футер
-            const footerLinks = document.querySelectorAll('.footer-links a');
-            footerLinks[0].textContent = t.rules;
-            footerLinks[1].textContent = t.safety;
-            footerLinks[2].textContent = t.help;
-            footerLinks[3].textContent = t.business;
-            footerLinks[4].textContent = t.partners;
-            document.querySelector('.copyright').textContent = t.copyright;
-            
-            // Модальные окна
-            document.querySelector('#driver-modal .modal-title').textContent = t.driverLoginTitle;
-            document.querySelector('#driver-modal input[type="text"]').placeholder = t.phoneEmail;
-            document.querySelector('#driver-modal input[type="password"]').placeholder = t.password;
-            document.querySelector('#driver-modal button[type="submit"]').textContent = t.login;
-            document.querySelector('#driver-modal .auth-switch').innerHTML = `${t.noAccount} <a href="#" id="driver-to-register">${t.register}</a>`;
-            
-            document.querySelector('#passenger-modal .modal-title').textContent = t.passengerLoginTitle;
-            document.querySelector('#passenger-modal input[type="text"]').placeholder = t.phoneEmail;
-            document.querySelector('#passenger-modal input[type="password"]').placeholder = t.password;
-            document.querySelector('#passenger-modal button[type="submit"]').textContent = t.login;
-            document.querySelector('#passenger-modal .auth-switch').innerHTML = `${t.noAccount} <a href="#" id="passenger-to-register">${t.register}</a>`;
-            
-            document.querySelector('#driver-register-modal .modal-title').textContent = t.driverRegisterTitle;
-            document.querySelector('#driver-register-form input:nth-of-type(1)').placeholder = t.firstName;
-            document.querySelector('#driver-register-form input:nth-of-type(2)').placeholder = t.lastName;
-            document.querySelector('#driver-register-form input:nth-of-type(3)').placeholder = t.phone;
-            document.querySelector('#driver-register-form input:nth-of-type(4)').placeholder = t.email;
-            document.querySelector('#driver-register-form input:nth-of-type(5)').placeholder = t.password;
-            document.querySelector('#driver-register-form input:nth-of-type(6)').placeholder = t.carModel;
-            document.querySelector('#driver-register-form input:nth-of-type(7)').placeholder = t.licensePlate;
-            document.querySelector('#driver-register-form button').textContent = t.submitRegister;
-            document.querySelector('#driver-register-modal .auth-switch').innerHTML = `${t.haveAccount} <a href="#" id="driver-to-login">${t.signIn}</a>`;
-            
-            document.querySelector('#passenger-register-modal .modal-title').textContent = t.passengerRegisterTitle;
-            document.querySelector('#passenger-register-form input:nth-of-type(1)').placeholder = t.firstName;
-            document.querySelector('#passenger-register-form input:nth-of-type(2)').placeholder = t.lastName;
-            document.querySelector('#passenger-register-form input:nth-of-type(3)').placeholder = t.phone;
-            document.querySelector('#passenger-register-form input:nth-of-type(4)').placeholder = t.email;
-            document.querySelector('#passenger-register-form input:nth-of-type(5)').placeholder = t.password;
-            document.querySelector('#passenger-register-form button').textContent = t.submitRegister;
-            document.querySelector('#passenger-register-modal .auth-switch').innerHTML = `${t.haveAccount} <a href="#" id="passenger-to-login">${t.signIn}</a>`;
-        }
-        
-        // Инициализация страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            // Заполняем список поездок
-            const ridesContainer = document.getElementById('rides-container');
-            
-            ridesData.forEach(ride => {
-                const rideCard = document.createElement('div');
-                rideCard.className = 'ride-card';
-                
-                // Генерация звезд рейтинга
-                let stars = '';
-                const fullStars = Math.floor(ride.driver.rating);
-                const hasHalfStar = ride.driver.rating % 1 >= 0.5;
-                
-                for (let i = 0; i < fullStars; i++) {
-                    stars += '<i class="fas fa-star star"></i>';
-                }
-                
-                if (hasHalfStar) {
-                    stars += '<i class="fas fa-star-half-alt star"></i>';
-                }
-                
-                const emptyStars = 5 - Math.ceil(ride.driver.rating);
-                for (let i = 0; i < emptyStars; i++) {
-                    stars += '<i class="far fa-star star"></i>';
-                }
-                
-                rideCard.innerHTML = `
-                    <div class="ride-header">
-                        <div class="route">${ride.from} → ${ride.to}</div>
-                        <div class="price">${ride.price}</div>
+
+        <!-- Страница входа -->
+        <div id="login" class="page">
+            <h1>Вход в систему</h1>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Пароль</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="button" onclick="loginUser()">Войти</button>
+                <button type="button" class="btn-secondary" onclick="showPage('home')">Отмена</button>
+            </form>
+            <p>Ещё нет аккаунта? <a href="#" onclick="showPage('register')">Зарегистрируйтесь</a></p>
+        </div>
+
+        <!-- Страница регистрации -->
+        <div id="register" class="page">
+            <h1>Регистрация</h1>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="reg-name">Имя</label>
+                    <input type="text" id="reg-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">Email</label>
+                    <input type="email" id="reg-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-phone">Телефон</label>
+                    <input type="tel" id="reg-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Пароль</label>
+                    <input type="password" id="reg-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-role">Роль</label>
+                    <select id="reg-role" required>
+                        <option value="">Выберите роль</option>
+                        <option value="passenger">Пассажир</option>
+                        <option value="driver">Водитель</option>
+                    </select>
+                </div>
+                <div id="driver-fields" class="hidden">
+                    <div class="form-group">
+                        <label for="reg-car-model">Модель автомобиля</label>
+                        <input type="text" id="reg-car-model">
                     </div>
-                    <div class="ride-details">
-                        <div class="detail">
-                            <i class="far fa-calendar-alt"></i>
-                            <span>${ride.date} в ${ride.time}</span>
+                    <div class="form-group">
+                        <label for="reg-car-number">Гос. номер</label>
+                        <input type="text" id="reg-car-number">
+                    </div>
+                </div>
+                <button type="button" onclick="registerUser()">Зарегистрироваться</button>
+                <button type="button" class="btn-secondary" onclick="showPage('home')">Отмена</button>
+            </form>
+        </div>
+
+        <!-- Страница поиска поездки -->
+        <div id="find-trip" class="page">
+            <h1>Найти поездку</h1>
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('search-tab')">Поиск</div>
+                <div class="tab" onclick="switchTab('my-requests-tab')">Мои заявки</div>
+                <div class="tab" onclick="switchTab('my-trips-tab')">Мои поездки</div>
+            </div>
+            
+            <div id="search-tab" class="tab-content active">
+                <form id="search-form">
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="from-city">Откуда</label>
+                            <input type="text" id="from-city" placeholder="Город отправления" required>
                         </div>
-                        <div class="detail">
-                            <i class="fas fa-user-friends"></i>
-                            <span>${ride.seats} ${currentLanguage === 'ru' ? 'свободных места' : currentLanguage === 'en' ? 'available seats' : 'bo\'sh joylar'}</span>
-                        </div>
-                        <div class="detail">
-                            <i class="fas fa-car"></i>
-                            <span>${ride.car}</span>
+                        <div class="form-group flex-1">
+                            <label for="to-city">Куда</label>
+                            <input type="text" id="to-city" placeholder="Город назначения" required>
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="trip-date">Дата</label>
+                            <input type="date" id="trip-date" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="passengers">Количество пассажиров</label>
+                            <select id="passengers">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="button" onclick="searchTrips()">Найти поездки</button>
+                </form>
+                
+                <div id="search-results" class="search-results">
+                    <h2>Доступные поездки</h2>
+                    
+                    <div class="trip-card">
+                        <div class="trip-meta">
+                            <span>Сегодня, 15:30</span>
+                            <span class="trip-price">1 500 ₽</span>
+                        </div>
+                        <h3>Москва → Санкт-Петербург</h3>
+                        <p>Комфортабельный седан, есть кондиционер, багажник просторный.</p>
+                        <div class="driver-card">
+                            <div class="driver-avatar">ИИ</div>
+                            <div class="driver-info">
+                                <h4>Иван Иванов</h4>
+                                <div class="driver-rating">★ 4.8 (42 отзыва)</div>
+                                <p>Volkswagen Passat, 2018 г., серый</p>
+                            </div>
+                        </div>
+                        <button onclick="showPage('trip-details')">Подробнее</button>
+                        <button class="btn-success" onclick="requestTrip()">Забронировать</button>
+                    </div>
+                    
+                    <div class="trip-card">
+                        <div class="trip-meta">
+                            <span>Завтра, 08:00</span>
+                            <span class="trip-price">1 200 ₽</span>
+                        </div>
+                        <h3>Москва → Нижний Новгород</h3>
+                        <p>Минивэн, много места для багажа, можно с детским креслом.</p>
+                        <div class="driver-card">
+                            <div class="driver-avatar">ПП</div>
+                            <div class="driver-info">
+                                <h4>Петр Петров</h4>
+                                <div class="driver-rating">★ 4.9 (67 отзывов)</div>
+                                <p>Toyota Sienna, 2020 г., белый</p>
+                            </div>
+                        </div>
+                        <button onclick="showPage('trip-details')">Подробнее</button>
+                        <button class="btn-success" onclick="requestTrip()">Забронировать</button>
+                    </div>
+                    
+                    <div class="trip-card">
+                        <div class="trip-meta">
+                            <span>Послезавтра, 12:00</span>
+                            <span class="trip-price">800 ₽</span>
+                        </div>
+                        <h3>Санкт-Петербург → Великий Новгород</h3>
+                        <p>Экономичный вариант, быстрая поездка без остановок.</p>
+                        <div class="driver-card">
+                            <div class="driver-avatar">СС</div>
+                            <div class="driver-info">
+                                <h4>Сергей Сергеев</h4>
+                                <div class="driver-rating">★ 4.5 (23 отзыва)</div>
+                                <p>Kia Rio, 2019 г., красный</p>
+                            </div>
+                        </div>
+                        <button onclick="showPage('trip-details')">Подробнее</button>
+                        <button class="btn-success" onclick="requestTrip()">Забронировать</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="my-requests-tab" class="tab-content">
+                <h2>Мои заявки на поездки</h2>
+                <div class="trip-card">
+                    <div class="trip-meta">
+                        <span>В ожидании подтверждения</span>
+                        <span class="trip-price">1 500 ₽</span>
+                    </div>
+                    <h3>Москва → Санкт-Петербург</h3>
+                    <p>Иван Иванов, Volkswagen Passat</p>
+                    <button class="btn-secondary">Отменить заявку</button>
+                </div>
+                
+                <div class="trip-card">
+                    <div class="trip-meta">
+                        <span>Подтверждено</span>
+                        <span class="trip-price">1 200 ₽</span>
+                    </div>
+                    <h3>Москва → Нижний Новгород</h3>
+                    <p>Петр Петров, Toyota Sienna</p>
+                    <button class="btn-secondary">Написать водителю</button>
+                    <button class="btn-danger">Отменить поездку</button>
+                </div>
+            </div>
+            
+            <div id="my-trips-tab" class="tab-content">
+                <h2>Мои завершенные поездки</h2>
+                <div class="trip-card">
+                    <div class="trip-meta">
+                        <span>15.06.2023</span>
+                        <span class="trip-price">1 500 ₽</span>
+                    </div>
+                    <h3>Москва → Санкт-Петербург</h3>
+                    <p>Иван Иванов, Volkswagen Passat</p>
+                    <div class="driver-rating">Ваша оценка: ★ 5</div>
+                    <p>Отличная поездка, водитель вежливый, машина чистая.</p>
+                </div>
+                
+                <div class="trip-card">
+                    <div class="trip-meta">
+                        <span>10.06.2023</span>
+                        <span class="trip-price">1 200 ₽</span>
+                    </div>
+                    <h3>Москва → Нижний Новгород</h3>
+                    <p>Петр Петров, Toyota Sienna</p>
+                    <div class="driver-rating">Ваша оценка: ★ 4</div>
+                    <p>Все хорошо, но немного опаздывали.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница предложения поездки -->
+        <div id="offer-trip" class="page">
+            <h1>Предложить поездку</h1>
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('new-trip-tab')">Новая поездка</div>
+                <div class="tab" onclick="switchTab('my-offers-tab')">Мои предложения</div>
+                <div class="tab" onclick="switchTab('trip-history-tab')">История поездок</div>
+            </div>
+            
+            <div id="new-trip-tab" class="tab-content active">
+                <form id="offer-trip-form">
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="offer-from-city">Откуда</label>
+                            <input type="text" id="offer-from-city" placeholder="Город отправления" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="offer-to-city">Куда</label>
+                            <input type="text" id="offer-to-city" placeholder="Город назначения" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="offer-date">Дата</label>
+                            <input type="date" id="offer-date" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="offer-time">Время</label>
+                            <input type="time" id="offer-time" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="offer-price">Цена за место</label>
+                            <input type="number" id="offer-price" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="offer-seats">Количество мест</label>
+                            <select id="offer-seats" required>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="offer-car">Автомобиль</label>
+                        <select id="offer-car" required>
+                            <option value="">Выберите автомобиль</option>
+                            <option value="1">Volkswagen Passat (А123БВ777)</option>
+                            <option value="2">Toyota Camry (Б456УК123)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="offer-comments">Дополнительная информация</label>
+                        <textarea id="offer-comments" rows="3" placeholder="Укажите особенности поездки, условия, есть ли детское кресло и т.д."></textarea>
+                    </div>
+                    
+                    <button type="button" onclick="offerTrip()">Опубликовать поездку</button>
+                    <button type="button" class="btn-secondary" onclick="showPage('home')">Отмена</button>
+                </form>
+            </div>
+            
+            <div id="my-offers-tab" class="tab-content">
+                <h2>Активные предложения</h2>
+                <div class="trip-card">
+                    <div class="trip-meta">
+                        <span>Завтра, 08:00</span>
+                        <span class="trip-price">1 200 ₽ за место (3 места)</span>
+                    </div>
+                    <h3>Москва → Нижний Новгород</h3>
+                    <p>Volkswagen Passat (А123БВ777)</p>
+                    <p>Есть детское кресло, багажник просторный, без животных.</p>
+                    <button class="btn-secondary">Редактировать</button>
+                    <button class="btn-danger">Отменить поездку</button>
+                </div>
+                
+                <div class="trip-card">
+                    <div class="trip-meta">
+                        <span>20.06.2023, 12:00</span>
+                        <span class="trip-price">1 500 ₽ за место (2 места)</span>
+                    </div>
+                    <h3>Москва → Санкт-Петербург</h3>
+                    <p>Toyota Camry (Б456УК123)</p>
+                    <p>Комфортная поездка, кондиционер, возможны остановки по пути.</p>
+                    <button class="btn-secondary">Редактировать</button>
+                    <button class="btn-danger">Отменить поездку</button>
+                </div>
+            </div>
+            
+            <div id="trip-history-tab" class="tab-content">
+                <h2>История поездок</h2>
+                <div class="trip-card">
+                    <div class="trip-meta">
+                        <span>15.06.2023</span>
+                        <span class="trip-price">1 500 ₽ × 2 места</span>
+                    </div>
+                    <h3>Москва → Санкт-Петербург</h3>
+                    <p>Пассажиры: Анна, Дмитрий</p>
+                    <div class="driver-rating">Средняя оценка: ★ 4.5</div>
+                </div>
+                
+                <div class="trip-card">
+                    <div class="trip-meta">
+                        <span>10.06.2023</span>
+                        <span class="trip-price">1 200 ₽ × 3 места</span>
+                    </div>
+                    <h3>Москва → Нижний Новгород</h3>
+                    <p>Пассажиры: Ольга, Игорь, Мария</p>
+                    <div class="driver-rating">Средняя оценка: ★ 4.8</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница деталей поездки -->
+        <div id="trip-details" class="page">
+            <h1>Детали поездки</h1>
+            <div class="trip-card">
+                <div class="trip-meta">
+                    <span>Завтра, 08:00</span>
+                    <span class="trip-price">1 200 ₽</span>
+                </div>
+                <h3>Москва → Нижний Новгород</h3>
+                <p>Минивэн, много места для багажа, можно с детским креслом.</p>
+                
+                <h3>Маршрут</h3>
+                <p>Москва (м. ВДНХ) → Нижний Новгород (пл. Ленина)</p>
+                <p>Возможны остановки в Владимире и Дзержинске</p>
+                
+                <h3>Автомобиль</h3>
+                <p>Toyota Sienna, 2020 г., белый</p>
+                <p>Комфорт: ★★★★☆</p>
+                <p>Багаж: ★★★★☆ (3 большие сумки)</p>
+                
+                <h3>Водитель</h3>
+                <div class="driver-card">
+                    <div class="driver-avatar">ПП</div>
                     <div class="driver-info">
-                        <div class="driver-avatar">${ride.driver.avatar}</div>
-                        <div class="driver-name">${ride.driver.name}</div>
-                        <div class="driver-rating">
-                            ${stars}
-                            <span>${ride.driver.rating}</span>
-                        </div>
+                        <h4>Петр Петров</h4>
+                        <div class="driver-rating">★ 4.9 (67 отзывов)</div>
+                        <p>На Pop.utka с 2021 года</p>
+                        <p>Телефон: +7 *** *** ** 45</p>
                     </div>
-                    <a href="#" class="view-btn">${currentLanguage === 'ru' ? 'Подробнее' : currentLanguage === 'en' ? 'View details' : 'Batafsil'}</a>
-                `;
+                </div>
                 
-                ridesContainer.appendChild(rideCard);
-            });
-            
-            // Обработчики для модальных окон
-            document.getElementById('driver-auth-btn').addEventListener('click', function() {
-                document.getElementById('driver-modal').style.display = 'flex';
-            });
-            
-            document.getElementById('passenger-auth-btn').addEventListener('click', function() {
-                document.getElementById('passenger-modal').style.display = 'flex';
-            });
-            
-            document.getElementById('close-driver-modal').addEventListener('click', function() {
-                document.getElementById('driver-modal').style.display = 'none';
-            });
-            
-            document.getElementById('close-passenger-modal').addEventListener('click', function() {
-                document.getElementById('passenger-modal').style.display = 'none';
-            });
-            
-            document.getElementById('close-driver-register-modal').addEventListener('click', function() {
-                document.getElementById('driver-register-modal').style.display = 'none';
-            });
-            
-            document.getElementById('close-passenger-register-modal').addEventListener('click', function() {
-                document.getElementById('passenger-register-modal').style.display = 'none';
-            });
-            
-            // Переключение между окнами входа и регистрации
-            document.getElementById('driver-to-register').addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('driver-modal').style.display = 'none';
-                document.getElementById('driver-register-modal').style.display = 'flex';
-            });
-            
-            document.getElementById('driver-to-login').addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('driver-register-modal').style.display = 'none';
-                document.getElementById('driver-modal').style.display = 'flex';
-            });
-            
-            document.getElementById('passenger-to-register').addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('passenger-modal').style.display = 'none';
-                document.getElementById('passenger-register-modal').style.display = 'flex';
-            });
-            
-            document.getElementById('passenger-to-login').addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('passenger-register-modal').style.display = 'none';
-                document.getElementById('passenger-modal').style.display = 'flex';
-            });
-            
-            // Закрытие модальных окон при клике вне их
-            window.addEventListener('click', function(e) {
-                if (e.target.classList.contains('modal')) {
-                    e.target.style.display = 'none';
-                }
-            });
-            
-            // Обработчик изменения языка
-            document.getElementById('language-select').addEventListener('change', function() {
-                changeLanguage(this.value);
-            });
-            
-            // Обработчик формы поиска
-            document.getElementById('search-btn').addEventListener('click', function() {
-                const from = document.getElementById('from-city').value;
-                const to = document.getElementById('to-city').value;
-                const date = document.getElementById('ride-date').value;
-                const passengers = document.getElementById('passengers').value;
+                <h3>Отзывы</h3>
+                <div class="review-card">
+                    <div class="review-header">
+                        <strong>Анна</strong>
+                        <div class="driver-rating">★ 5</div>
+                    </div>
+                    <p>Отличный водитель, аккуратно вел машину, вовремя приехали.</p>
+                    <p class="review-date">15.05.2023</p>
+                </div>
                 
-                // Здесь должна быть логика фильтрации поездок
-                // В демо просто показываем alert
-                alert(currentLanguage === 'ru' ? 
-                      `Поиск поездок из ${from} в ${to} на ${date} для ${passengers} пассажиров` :
-                      currentLanguage === 'en' ?
-                      `Searching rides from ${from} to ${to} on ${date} for ${passengers} passengers` :
-                      `${from} dan ${to} ga ${date} kun ${passengers} yo'lovchi uchun sayohatlar qidirilmoqda`);
-            });
-        });
-    </script>
+                <div class="review-card">
+                    <div class="review-header">
+                        <strong>Дмитрий</strong>
+                        <div class="driver-rating">★ 4</div>
+                    </div>
+                    <p>Все хорошо, но немного задержались в пути из-за пробок.</p>
+                    <p class="review-date">10.05.2023</p>
+                </div>
+                
+                <button class="btn-success" onclick="requestTrip()">Забронировать место</button>
+                <button onclick="showPage('find-trip')">Назад к поиску</button>
+            </div>
+        </div>
+
+        <!-- Страница о сервисе -->
+        <div id="about" class="page">
+            <h1>О сервисе Pop.utka</h1>
+            <p>Pop.utka - это платформа для поиска междугородних поездок на такси с попутчиками. Мы соединяем водителей, которые едут в другой город, с пассажирами, которым нужно туда же.</p>
+            
+            <h2>Наши преимущества</h2>
+            <ul>
+                <li>Выгодные цены - дешевле, чем обычное такси</li>
+                <li>Комфортные автомобили - все водители проходят проверку</li>
+                <li>Удобный поиск - находите поездки по нужному направлению и дате</li>
+                <li>Безопасность - все пользователи верифицированы</li>
+                <li>Гарантия поездки - если водитель отменит, мы найдем замену</li>
+            </ul>
+            
+            <h2>Как стать водителем?</h2>
+            <ol>
+                <li>Зарегистрируйтесь как водитель</li>
+                <li>Добавьте информацию об автомобиле</li>
+                <li>Создайте объявление о поездке</li>
+                <li>Получайте заявки от пассажиров</li>
+                <li>Зарабатывайте на попутчиках!</li>
+            </ol>
+            
+            <h2>Контакты</h2>
+            <p>Email: support@pop.utka</p>
+            <p>Телефон: +7 (800) 123-45-67</p>
+        </div>
+
+        <!-- Админ-панель -->
+        <div id="admin" class="page">
+            <h1>Административная панель</h1>
+            <div class="admin-menu">
+                <button class="active" onclick="switchAdminSection('dashboard')">Дашборд</button>
+                <button onclick="switchAdminSection('users')">Пользователи</button>
+                <button onclick="switchAdminSection('trips')">Поездки</button>
+                <button onclick="switchAdminSection('reports')">Отчеты</button>
+                <button onclick="switchAdminSection('settings')">Настройки</button>
+            </div>
+            
+            <div id="dashboard" class="admin-section active">
+                <h2>Статистика</h2>
+                <div class="admin-stats">
+                    <div class="admin-stat stat-blue">
+                        <h3>1 245</h3>
+                        <p>Пользователей</p>
+                    </div>
+                    <div class="admin-stat stat-yellow">
+                        <h3>543</h3>
+                        <p>Активных поездок</p>
+                    </div>
+                    <div class="admin-stat stat-green">
+                        <h3>3 287</h3>
+                        <p>Завершенных поездок</p>
+                    </div>
+                </div>
+                
+                <h2>Последние действия</h2>
+                <table>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Пользователь</th>
+                        <th>Действие</th>
+                    </tr>
+                    <tr>
+                        <td>15.06.2023 10:30</td>
+                        <td>Иван Иванов</td>
+                        <td>Создал поездку Москва - СПб</td>
+                    </tr>
+                    <tr>
+                        <td>15.06.2023 09:45</td>
+                        <td>Анна Петрова</td>
+                        <td>Забронировала место в поездке</td>
+                    </tr>
+                    <tr>
+                        <td>15.06.2023 08:20</td>
+                        <td>Петр Сидоров</td>
+                        <td>Зарегистрировался как водитель</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div id="users" class="admin-section">
+                <h2>Управление пользователями</h2>
+                <div class="admin-search">
+                    <input type="text" placeholder="Поиск пользователей...">
+                    <button>Найти</button>
+                </div>
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Имя</th>
+                        <th>Email</th>
+                        <th>Роль</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Иван Иванов</td>
+                        <td>ivan@example.com</td>
+                        <td>Водитель</td>
+                        <td>Активен</td>
+                        <td>
+                            <button class="btn-secondary">Редактировать</button>
+                            <button class="btn-danger">Заблокировать</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Анна Петрова</td>
+                        <td>anna@example.com</td>
+                        <td>Пассажир</td>
+                        <td>Активен</td>
+                        <td>
+                            <button class="btn-secondary">Редактировать</button>
+                            <button class="btn-danger">Заблокировать</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Петр Сидоров</td>
+                        <td>peter@example.com</td>
+                        <td>Водитель</td>
+                        <td>На проверке</td>
+                        <td>
+                            <button class="btn-success">Подтвердить</button>
+                            <button class="btn-danger">Отклонить</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div id="trips" class="admin-section">
+                <h2>Управление поездками</h2>
+                <div class="admin-search">
+                    <input type="text" placeholder="Поиск поездок...">
+                    <button>Найти</button>
+                </div>
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Маршрут</th>
+                        <th>Дата</th>
+                        <th>Водитель</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                    <tr>
+                        <td>101</td>
+                        <td>Москва → СПб</td>
+                        <td>16.06.2023</td>
+                        <td>Иван Иванов</td>
+                        <td>Активна</td>
+                        <td>
+                            <button class="btn-secondary">Просмотр</button>
+                            <button class="btn-danger">Отменить</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>102</td>
+                        <td>Москва → Н.Новгород</td>
+                        <td>17.06.2023</td>
+                        <td>Петр Сидоров</td>
+                        <td>На модерации</td>
+                        <td>
+                            <button class="btn-success">Одобрить</button>
+                            <button class="btn-danger">Отклонить</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>103</td>
+                        <td>СПб → Великий Новгород</td>
+                        <td>15.06.2023</td>
+                        <td>Алексей Комаров</td>
+                        <td>Завершена</td>
+                        <td>
+                            <button class="btn-secondary">Детали</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div id="reports" class="admin-section">
+                <h2>Отчеты</h2>
+                <div class="admin-reports">
+                    <div class="admin-report">
+                        <h3>Финансовый отчет</h3>
+                        <p>Доход за месяц: 124 500 ₽</p>
+                        <p>Комиссия сервиса: 24 900 ₽</p>
+                        <button>Скачать отчет</button>
+                    </div>
+                    <div class="admin-report">
+                        <h3>Активность пользователей</h3>
+                        <p>Новых пользователей: 45</p>
+                        <p>Активных поездок: 123</p>
+                        <button>Скачать отчет</button>
+                    </div>
+                </div>
+                
+                <h3>Генерация отчета</h3>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="report-type">Тип отчета</label>
+                        <select id="report-type">
+                            <option value="finance">Финансовый</option>
+                            <option value="users">По пользователям</option>
+                            <option value="trips">По поездкам</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="report-period">Период</label>
+                        <select id="report-period">
+                            <option value="day">За день</option>
+                            <option value="week">За неделю</option>
+                            <option value="month">За месяц</option>
+                        </select>
+                    </div>
+                </div>
+                <button>Сгенерировать отчет</button>
+            </div>
+            
+            <div id="settings" class="admin-section">
+                <h2>Настройки системы</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="comission-rate">Комиссия сервиса (%)</label>
+                        <input type="number" id="comission-rate" value="20">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="min-driver-rating">Минимальный рейтинг водителя</label>
+                        <input type="number" id="min-driver-rating" step="0.1" value="4.0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="max-cancel-rate">Максимальный процент отмен</label>
+                        <input type="number" id="max-cancel-rate" value="10">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="support-email">Email поддержки</label>
+                        <input type="email" id="support-email" value="support@pop.utka">
+                    </div>
+                    
+                    <button type="submit" class="btn-success">Сохранить настройки</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
