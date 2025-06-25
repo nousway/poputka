@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pop.utka - Междугородние поездки на такси</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a76a8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
 </head>
 <body>
     <header>
@@ -169,6 +175,16 @@
                                 <option value="2">2</option>
                                 <option value="3">3</option>
                                 <option value="4">4</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="trip-class">Класс</label>
+                            <select id="trip-class">
+                                <option value="econom">Эконом</option>
+                                <option value="comfort">Комфорт</option>
+                                <option value="business">Бизнес</option>
                             </select>
                         </div>
                     </div>
@@ -711,5 +727,10 @@
         </div>
     </div>
     <script src="script.js"></script>
+    <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
 </body>
 </html>

@@ -191,12 +191,20 @@ function logoutUser() {
 }
 
 // Поиск поездок
+function saveSearchHistory(from, to, date, passengers, klass) {
+    const history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+    history.unshift({ from, to, date, passengers, klass, ts: Date.now() });
+    localStorage.setItem('searchHistory', JSON.stringify(history.slice(0, 10)));
+}
 function searchTrips() {
     const fromCity = document.getElementById('from-city').value;
     const toCity = document.getElementById('to-city').value;
     const date = document.getElementById('trip-date').value;
+    const passengers = document.getElementById('passengers').value;
+    const klass = document.getElementById('trip-class') ? document.getElementById('trip-class').value : 'econom';
 
     if (fromCity && toCity && date) {
+        saveSearchHistory(fromCity, toCity, date, passengers, klass);
         alert(`Поиск поездок из ${fromCity} в ${toCity} на ${date}`);
         // В реальном приложении здесь был бы запрос к серверу
     } else {
@@ -233,3 +241,75 @@ function requestTrip() {
     alert('Ваша заявка на поездку отправлена водителю!');
     showPage('find-trip');
 }
+
+async function fetchCitySuggestions(query) {
+    // Пример: используем API Яндекс или GeoNames
+    const url = `https://api.teleport.org/api/cities/?search=${encodeURIComponent(query)}&limit=5`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data._embedded['city:search-results'].map(item => item.matching_full_name);
+}
+
+function setupAutocomplete(inputId) {
+    const input = document.getElementById(inputId);
+    let datalist = document.getElementById(inputId + '-list');
+    if (!datalist) {
+        datalist = document.createElement('datalist');
+        datalist.id = inputId + '-list';
+        document.body.appendChild(datalist);
+        input.setAttribute('list', datalist.id);
+    }
+    input.addEventListener('input', async function() {
+        const value = input.value;
+        if (value.length < 2) return;
+        const suggestions = await fetchCitySuggestions(value);
+        datalist.innerHTML = '';
+        suggestions.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            datalist.appendChild(option);
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupAutocomplete('from-city');
+    setupAutocomplete('to-city');
+    // Установим сегодняшнюю дату по умолчанию в полях даты
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('trip-date').value = today;
+    document.getElementById('offer-date').value = today;
+
+    // Установим текущее время + 1 час по умолчанию
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    document.getElementById('offer-time').value = `${hours}:${minutes}`;
+});
+
+function showToast(msg) {
+    let toast = document.querySelector('.toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function detectCity() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(async pos => {
+        const { latitude, longitude } = pos.coords;
+        // Пример: использовать API Яндекс или Nominatim
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+        const data = await res.json();
+        if (data.address && data.address.city) {
+            document.getElementById('from-city').value = data.address.city;
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', detectCity);
